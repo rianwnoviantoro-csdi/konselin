@@ -8,7 +8,6 @@ import {
   Text,
   TextField,
 } from "@radix-ui/themes";
-import { PiPlusLight } from "react-icons/pi";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import UseTitle from "../../../../hooks/use-title";
@@ -64,15 +63,7 @@ function Create() {
   }
 
   return (
-    <>
-      <div className="p-4 mb-16 flex justify-between">
-        <div className=""></div>
-        <div className="">
-          <Button radius="large" variant="solid">
-            <PiPlusLight size={16} /> Import excell
-          </Button>
-        </div>
-      </div>
+    <Container size="4" className="p-4">
       {error && (
         <div
           ref={errorRef}
@@ -83,53 +74,51 @@ function Create() {
           {error}
         </div>
       )}
-      <Container size="2">
-        <form onSubmit={handleSubmit} autoComplete="off">
-          <Grid columns="3" gapX="4" gapY="2" width="auto" className="mb-2">
-            <Box>
-              <Text as="label" size="1">
-                Name
-              </Text>
-              <TextField.Root
-                radius="large"
-                size="2"
-                placeholder="Type name here..."
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
-            </Box>
-            <Box>
-              <Text as="label" size="1">
-                Phone
-              </Text>
-              <TextField.Root
-                radius="large"
-                size="2"
-                placeholder="Type phone here..."
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-              />
-            </Box>
-            <Box>
-              <Text as="label" size="1">
-                Password
-              </Text>
-              <TextField.Root
-                radius="large"
-                size="2"
-                type="password"
-                placeholder="Type password here..."
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </Box>
-          </Grid>
-          <Button radius="large" variant="solid" disabled={isLoading}>
-            {isLoading ? <Spinner size="2" /> : "Submit"}
-          </Button>
-        </form>
-      </Container>
-    </>
+      <form onSubmit={handleSubmit} autoComplete="off">
+        <Grid columns="3" gapX="4" gapY="2" width="auto" className="mb-4">
+          <Box>
+            <Text as="label" size="1">
+              Name
+            </Text>
+            <TextField.Root
+              radius="large"
+              size="2"
+              placeholder="Type name here..."
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </Box>
+          <Box>
+            <Text as="label" size="1">
+              Phone
+            </Text>
+            <TextField.Root
+              radius="large"
+              size="2"
+              placeholder="Type phone here..."
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+            />
+          </Box>
+          <Box>
+            <Text as="label" size="1">
+              Password
+            </Text>
+            <TextField.Root
+              radius="large"
+              size="2"
+              type="password"
+              placeholder="Type password here..."
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </Box>
+        </Grid>
+        <Button radius="large" variant="solid" disabled={isLoading}>
+          {isLoading ? <Spinner size="2" /> : "Submit"}
+        </Button>
+      </form>
+    </Container>
   );
 }
 

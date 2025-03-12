@@ -17,6 +17,13 @@ export const baseQuery = async ({ url, params }) => {
 export const apiSlice = createApi({
   reducerPath: "api",
   baseQuery,
-  tagTypes: ["Accounts", "Auth", "Filters", "Students", "Counselings"], // Define tags for caching
+  tagTypes: [
+    "Accounts",
+    "Auth",
+    "Filter",
+    "Filters",
+    "Students",
+    "Counselings",
+  ], // Define tags for caching
   endpoints: (builder) => ({}), // Other slices will extend this
 });

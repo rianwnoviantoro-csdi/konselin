@@ -182,4 +182,42 @@ export const accountHandler = () => {
       data: accounts,
     };
   });
+
+  // Get one by id
+  ipcMain.handle("change-password", async (e, param) => {
+    const { token, oldPassword, newPassword } = param;
+
+    const authenticated = await verifyToken(e, token);
+
+    if (!authenticated) {
+      throw new Error("Unauthorized");
+    }
+
+    let exist = await Account.findOne({
+      where: { id: authenticated.id },
+    });
+
+    if (!exist) {
+      throw new Error("Account not found");
+    }
+
+    exist = exist.toJSON();
+
+    const isValid = await bcrypt.compare(oldPassword, exist.password);
+
+    if (!isValid) {
+      throw new Error("Invalid credential");
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await Account.update(
+      { password: hashedPassword },
+      { where: { id: exist.id } }
+    );
+
+    delete exist.password;
+
+    return { success: true, data: exist };
+  });
 };

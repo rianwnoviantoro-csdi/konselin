@@ -78,10 +78,6 @@ function Create() {
 
   return (
     <>
-      <div className="p-4 mb-16 flex justify-between">
-        <div className=""></div>
-        <div className=""></div>
-      </div>
       {error && (
         <div
           ref={errorRef}
@@ -92,7 +88,7 @@ function Create() {
           {error}
         </div>
       )}
-      <Container size="2">
+      <Container size="4" className="p-4">
         <form onSubmit={handleSubmit} autoComplete="off">
           <Flex gap="4" className="mb-4">
             <Box>

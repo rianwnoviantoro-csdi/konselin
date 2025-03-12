@@ -1,29 +1,30 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useGetAllAccountsQuery } from "../../../../redux/feature/account/api";
 import UseTitle from "../../../../hooks/use-title";
-import {
-  Container,
-  Grid,
-  IconButton,
-  Spinner,
-  Table,
-  TextField,
-} from "@radix-ui/themes";
-import { useSelector } from "react-redux";
+import { Container, Grid, IconButton, Spinner, Table } from "@radix-ui/themes";
+import { useDispatch, useSelector } from "react-redux";
 import { selectCurrentToken } from "../../../../redux/feature/auth/slice";
-import {
-  PiMagnifyingGlassLight,
-  PiCaretRightLight,
-  PiCaretLeftLight,
-} from "react-icons/pi";
+import { PiCaretRightLight, PiCaretLeftLight } from "react-icons/pi";
 import { Reusable } from "../../../../component";
+import {
+  searchValue,
+  selectCurrentSearchValue,
+} from "../../../../redux/feature/filter/slice";
+import { useLocation } from "react-router-dom";
 
 function List() {
-  UseTitle("Counsuler - list | Konselin");
+  UseTitle("Konsuler - list | Konselin");
+
+  const location = useLocation();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(searchValue(""));
+  }, [location.pathname, dispatch]);
 
   const token = useSelector(selectCurrentToken);
+  const search = useSelector(selectCurrentSearchValue);
 
-  const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState("created");
   const [sortDirection, setSortDirection] = useState("DESC");
   const [page, setPage] = useState(1);
@@ -33,14 +34,17 @@ function List() {
     data: counsulers,
     isLoading: isCounsulersLoading,
     isSuccess: isCounsulersSuccess,
-  } = useGetAllAccountsQuery({
-    token: token,
-    search,
-    sortBy,
-    sortDirection,
-    page,
-    perPage,
-  });
+  } = useGetAllAccountsQuery(
+    {
+      token: token,
+      search: search,
+      sortBy,
+      sortDirection,
+      page,
+      perPage,
+    },
+    { skip: !token }
+  );
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -84,17 +88,7 @@ function List() {
 
   return (
     <Container size="4" className="p-4">
-      <Grid columns="2" gap="4" width="auto" className="mb-4">
-        <TextField.Root
-          radius="large"
-          placeholder="Search..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        >
-          <TextField.Slot>
-            <PiMagnifyingGlassLight size={16} />
-          </TextField.Slot>
-        </TextField.Root>
+      <Grid columns="1" gap="4" width="auto" className="mb-4">
         <div className="flex justify-end items-center gap-1">
           {/* Previous Button */}
           <IconButton
@@ -151,7 +145,7 @@ function List() {
             ))
           ) : (
             <Table.Row>
-              <Table.Cell colSpan={4}>
+              <Table.Cell colSpan={columns.length} align="center">
                 <Spinner />
               </Table.Cell>
             </Table.Row>

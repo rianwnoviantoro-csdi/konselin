@@ -16,6 +16,14 @@ export const accountApi = apiSlice.injectEndpoints({
         };
       },
     }),
+    changePassword: builder.mutation({
+      query: (payload) => {
+        return {
+          url: "changePassword",
+          params: payload, // Send the payload as-is
+        };
+      },
+    }),
     getAllAccounts: builder.query({
       query: (payload) => ({
         url: "getAllAccounts",
@@ -29,5 +37,6 @@ export const accountApi = apiSlice.injectEndpoints({
 export const {
   useGetAccountNamesQuery,
   useRegisterMutation,
+  useChangePasswordMutation,
   useGetAllAccountsQuery,
 } = accountApi;

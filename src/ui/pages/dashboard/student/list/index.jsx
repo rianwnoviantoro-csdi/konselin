@@ -1,10 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import UseTitle from "../../../../hooks/use-title";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { selectCurrentToken } from "../../../../redux/feature/auth/slice";
 import { useGetAllStudentsQuery } from "../../../../redux/feature/student/api";
 import {
-  Box,
   Container,
   Flex,
   Grid,
@@ -12,37 +11,59 @@ import {
   Select,
   Spinner,
   Table,
-  TextField,
 } from "@radix-ui/themes";
-import {
-  PiCaretLeftLight,
-  PiCaretRightLight,
-  PiMagnifyingGlassLight,
-} from "react-icons/pi";
+import { PiCaretLeftLight, PiCaretRightLight } from "react-icons/pi";
 import { Reusable } from "../../../../component";
+import {
+  searchValue,
+  selectCurrentSearchValue,
+} from "../../../../redux/feature/filter/slice";
+import { useLocation } from "react-router-dom";
+import { useFilterClassQuery } from "../../../../redux/feature/filter/api";
 
 function List() {
   UseTitle("Student - list | Konselin");
-  const token = useSelector(selectCurrentToken);
 
-  const [search, setSearch] = useState("");
+  const location = useLocation();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    // Reset search when location changes
+    dispatch(searchValue(""));
+  }, [location.pathname, dispatch]);
+
+  const token = useSelector(selectCurrentToken);
+  const search = useSelector(selectCurrentSearchValue);
+
   const [sortBy, setSortBy] = useState("created");
+  const [filterClassName, setFilterClassName] = useState("");
+  const [selectedClassName, setSelectedClassName] = useState("");
   const [sortDirection, setSortDirection] = useState("DESC");
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(15);
 
   const {
+    data: classNames,
+    isLoading: isClassNamesLoading,
+    isSuccess: isClassNamesSuccess,
+  } = useFilterClassQuery();
+
+  const {
     data: students,
     isLoading: isStudentsLoading,
     isSuccess: isStudentsSuccess,
-  } = useGetAllStudentsQuery({
-    token: token,
-    search,
-    sortBy,
-    sortDirection,
-    page,
-    perPage,
-  });
+  } = useGetAllStudentsQuery(
+    {
+      token: token,
+      search: search,
+      sortBy,
+      sortDirection,
+      className: filterClassName,
+      page,
+      perPage,
+    },
+    { skip: !token }
+  );
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -97,38 +118,19 @@ function List() {
     <Container size="4" className="p-4">
       <Grid columns="2" gap="4" width="auto" className="mb-4">
         <Flex gap="1">
-          <Select.Root>
-            <Select.Trigger placeholder="Pick a class" />
-            <Select.Content>
-              <Select.Group>
-                <Select.Label>Fruits</Select.Label>
-                <Select.Item value="orange">Orange</Select.Item>
-                <Select.Item value="apple">Apple</Select.Item>
-                <Select.Item value="grape" disabled>
-                  Grape
-                </Select.Item>
-              </Select.Group>
-              <Select.Separator />
-              <Select.Group>
-                <Select.Label>Vegetables</Select.Label>
-                <Select.Item value="carrot">Carrot</Select.Item>
-                <Select.Item value="potato">Potato</Select.Item>
-              </Select.Group>
-            </Select.Content>
-          </Select.Root>
-
-          <Box width="100%">
-            <TextField.Root
-              radius="large"
-              placeholder="Search..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            >
-              <TextField.Slot>
-                <PiMagnifyingGlassLight size={16} />
-              </TextField.Slot>
-            </TextField.Root>
-          </Box>
+          {isClassNamesSuccess && (
+            <Reusable.SearchableSelect
+              options={classNames.data}
+              onSelect={(selectedClass) => {
+                setFilterClassName(selectedClass);
+                setSelectedClassName(selectedClass);
+              }}
+              selectedValue={selectedClassName}
+              displayField="class"
+              valueField="class"
+              placeholder="Class"
+            />
+          )}
         </Flex>
         <div className="flex justify-end items-center gap-1">
           {/* Previous Button */}
@@ -156,6 +158,7 @@ function List() {
           </IconButton>
         </div>
       </Grid>
+
       <Table.Root size="1" variant="surface">
         <Table.Header>
           <Table.Row>
@@ -186,7 +189,9 @@ function List() {
             ))
           ) : (
             <Table.Row>
-              <Spinner />
+              <Table.Cell colSpan={columns.length} align="center">
+                <Spinner />
+              </Table.Cell>
             </Table.Row>
           )}
         </Table.Body>

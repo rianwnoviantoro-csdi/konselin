@@ -20,32 +20,32 @@ function Sidebar() {
   // Define menu lists based on active icon
   const menuItems = {
     1: [
-      { path: "/dashboard", label: "Dashboard" },
-      { path: "/dashboard/counseling", label: "Counseling list" },
-      { path: "/dashboard/counseling/create", label: "Add new counseling" },
+      { path: "/dashboard", label: "Dasbor" },
+      { path: "/dashboard/counseling", label: "Lis Konseling" },
+      { path: "/dashboard/counseling/create", label: "Konseling baru" },
     ],
     2: [
-      { path: "/dashboard/student", label: "Student list" },
-      { path: "/dashboard/student/create", label: "Add new student" },
+      { path: "/dashboard/student", label: "Lis peserta" },
+      { path: "/dashboard/student/create", label: "Peserta baru" },
     ],
     3: [
-      { path: "/dashboard/account", label: "Counsuler list" },
-      { path: "/dashboard/account/create", label: "Add new counsuler" },
+      { path: "/dashboard/account", label: "Lis konsuler" },
+      { path: "/dashboard/account/create", label: "Konsuler baru" },
     ],
-    4: [{ path: "/dashboard/setting", label: "Change password" }],
+    4: [{ path: "/dashboard/setting", label: "Ganti password" }],
   };
 
   // List of Sidebar Items
   const sidebarIcons = [
-    { id: 1, bottom: false, icon: PiChatsCircleLight, tooltip: "Counseling" },
-    { id: 2, bottom: false, icon: PiStudent, tooltip: "Student" },
+    { id: 1, bottom: false, icon: PiChatsCircleLight, tooltip: "Konseling" },
+    { id: 2, bottom: false, icon: PiStudent, tooltip: "Peserta / Murid" },
     {
       id: 3,
       bottom: false,
       icon: PiChalkboardTeacherLight,
-      tooltip: "Counsuler",
+      tooltip: "Konsuler / Guru",
     },
-    { id: 4, bottom: true, icon: PiUserCircleLight, tooltip: "Setting" },
+    { id: 4, bottom: true, icon: PiUserCircleLight, tooltip: "Pengaturan" },
     { id: 5, bottom: true, icon: PiSignOutLight, tooltip: "Sign Out" },
   ];
 

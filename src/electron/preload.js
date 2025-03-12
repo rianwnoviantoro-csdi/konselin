@@ -8,6 +8,7 @@ contextBridge.exposeInMainWorld("api", {
     }),
   login: (param) => ipcRenderer.invoke("login", param),
   register: (param) => ipcRenderer.invoke("register", param),
+  changePassword: (param) => ipcRenderer.invoke("change-password", param),
   getAllAccounts: (param) => ipcRenderer.invoke("get-all-accounts", param),
   getAccountById: (param) =>
     ipcRenderer.invoke("get-one-account-by-id", param).then((account) => {

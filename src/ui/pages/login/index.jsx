@@ -5,7 +5,9 @@ import UseTitle from "../../hooks/use-title";
 import { useLoginMutation } from "../../redux/feature/auth/api";
 import { loginSuccess } from "../../redux/feature/auth/slice";
 import { useGetAccountNamesQuery } from "../../redux/feature/account/api";
-import { Button, Grid, Select, Spinner, TextField } from "@radix-ui/themes";
+import { Button, Grid, Spinner, TextField } from "@radix-ui/themes";
+import { Reusable } from "../../component";
+import { Phone } from "lucide-react";
 
 function Login() {
   UseTitle("Login - Konselin");
@@ -17,6 +19,7 @@ function Login() {
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [selectedName, setSelectedName] = useState(""); // State to store the selected name
   const [login, { isLoading }] = useLoginMutation();
   const { data: accounts, isLoading: isAccountsLoading } =
     useGetAccountNamesQuery();
@@ -25,11 +28,13 @@ function Login() {
     setError("");
   }, [phone, password]);
 
-  useEffect(() => {
-    if (!isAccountsLoading && accounts.data.length > 0) {
-      setPhone(accounts.data[0].phone);
-    }
-  }, [accounts, isAccountsLoading]);
+  //   useEffect(() => {
+  //     if (!isAccountsLoading && accounts?.data?.length > 0) {
+  //       // Set the default phone number and name to the first account's values
+  //       setPhone(accounts.data[0].phone);
+  //       setSelectedName(accounts.data[0].name);
+  //     }
+  //   }, [accounts, isAccountsLoading]);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -62,34 +67,35 @@ function Login() {
             {error}
           </div>
         )}
+
         <form
           onSubmit={handleSubmit}
           autoComplete="off"
           className="flex flex-col gap-3 justify-center w-[50%]"
         >
-          <Select.Root defaultValue={phone} onValueChange={setPhone}>
-            <Select.Trigger
-              radius="large"
-              placeholder="Pick an account"
-              className="w-full"
+          {accounts && (
+            <Reusable.SearchableSelect
+              options={accounts.data}
+              onSelect={(phone) => {
+                setPhone(phone);
+                const selectedAccount = accounts.data.find(
+                  (account) => account.phone === phone
+                );
+                setSelectedName(selectedAccount?.name || ""); // Update selected name
+              }}
+              selectedValue={selectedName}
+              displayField="name"
+              valueField="phone"
+              placeholder="Search by name..."
             />
-            <Select.Content className="w-full">
-              {!isAccountsLoading &&
-                accounts.data.map((account) => (
-                  <Select.Item key={account.id} value={account.phone}>
-                    {account.name}
-                  </Select.Item>
-                ))}
-            </Select.Content>
-          </Select.Root>
+          )}
 
-          <TextField.Root
-            radius="large"
+          <input
+            type="password"
+            placeholder="Your password here..."
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            type="password"
-            placeholder="Type your password here"
-            className="w-full"
+            className="w-full px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
           />
 
           <Button

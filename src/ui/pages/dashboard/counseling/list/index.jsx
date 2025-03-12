@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import UseTitle from "../../../../hooks/use-title";
 import { selectCurrentToken } from "../../../../redux/feature/auth/slice";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   useFilterClassQuery,
   useFilterCounselingTypeQuery,
@@ -15,32 +15,48 @@ import {
 } from "react-icons/pi";
 import { Reusable } from "../../../../component";
 import {
-  Box,
   Container,
   Flex,
   Grid,
   IconButton,
-  Select,
   Spinner,
   Table,
-  TextField,
 } from "@radix-ui/themes";
+import { useGetAllCounselingQuery } from "../../../../redux/feature/counsule/api";
 import {
-  useGetAllCounselingQuery,
-  useGetCounselingByIdQuery,
-} from "../../../../redux/feature/counsule/api";
+  searchValue,
+  selectCurrentSearchValue,
+} from "../../../../redux/feature/filter/slice";
+import { useLocation } from "react-router-dom";
 
 function List() {
   UseTitle("Counseling - list | Konselin");
-  const token = useSelector(selectCurrentToken);
 
-  const [search, setSearch] = useState("");
+  const location = useLocation();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    // Reset search when location changes
+    dispatch(searchValue(""));
+  }, [location.pathname, dispatch]);
+
+  const token = useSelector(selectCurrentToken);
+  const search = useSelector(selectCurrentSearchValue);
+
   const [sortBy, setSortBy] = useState("created");
+
   const [className, setClassName] = useState("");
+  const [selectedClassName, setSelectedClassName] = useState("");
+
   const [student, setStudent] = useState("");
+  const [selectedStudent, setSelectedStudent] = useState("");
+
   const [counsuler, setCounsuler] = useState("");
-  const [counsuleId, setCounsuleId] = useState("");
+  const [selectedCounsuler, setSelectedCounsuler] = useState("");
+
   const [type, setType] = useState("");
+  const [selectedType, setSelectedType] = useState("");
+
   const [sortDirection, setSortDirection] = useState("DESC");
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(15);
@@ -70,33 +86,25 @@ function List() {
   } = useFilterCounsulerNameQuery();
 
   const {
-    data: counselingsDetail,
-    isLoading: isCounselingsDetailLoading,
-    isSuccess: isCounselingsDetailSuccess,
-    isError: isCounselingsDetailError,
-    error: counselingsDetailError,
-  } = useGetCounselingByIdQuery({
-    token: token,
-    id: counsuleId,
-  });
-
-  const {
     data: counselings,
     isLoading: isCounselingsLoading,
     isSuccess: isCounselingsSuccess,
     isError: isCounselingsError,
     error: counselingsError,
-  } = useGetAllCounselingQuery({
-    token: token,
-    search,
-    sortBy,
-    className,
-    student,
-    type,
-    sortDirection,
-    page,
-    perPage,
-  });
+  } = useGetAllCounselingQuery(
+    {
+      token: token,
+      search: search,
+      sortBy,
+      className,
+      student,
+      type,
+      sortDirection,
+      page,
+      perPage,
+    },
+    { skip: !token }
+  );
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -132,11 +140,11 @@ function List() {
   };
 
   const columns = [
-    { key: "type", label: "Type", sortable: true },
-    { key: "student", label: "Student", sortable: true },
-    { key: "class", label: "Class", sortable: true },
-    { key: "problem", label: "Problem", sortable: true },
-    { key: "counsuler", label: "Counsuler", sortable: true },
+    { key: "type", label: "Tipe", sortable: true },
+    { key: "student", label: "Murid", sortable: true },
+    { key: "class", label: "Kelas", sortable: true },
+    { key: "problem", label: "Permasalahan", sortable: true },
+    { key: "counsuler", label: "Konsuler", sortable: true },
     { key: "created", label: "Created", sortable: true },
     { key: "action", label: null, sortable: false },
   ];
@@ -145,66 +153,64 @@ function List() {
     <Container size="4" className="p-4">
       <Grid columns="2" gap="4" width="auto" className="mb-4">
         <Flex gap="1">
-          <Select.Root defaultValue={className} onValueChange={setClassName}>
-            <Select.Trigger placeholder="Student" />
-            <Select.Content>
-              {isStudentsSuccess &&
-                students.data.map((item, index) => (
-                  <Select.Item key={index} value={item.full_name}>
-                    {item.full_name}
-                  </Select.Item>
-                ))}
-            </Select.Content>
-          </Select.Root>
+          {isClassNamesSuccess && (
+            <Reusable.SearchableSelect
+              options={classNames.data} // Pass the array of class objects
+              onSelect={(selectedClass) => {
+                setClassName(selectedClass); // Update the className state
+                setSelectedClassName(selectedClass); // Update the selectedClassName state
+              }}
+              selectedValue={selectedClassName} // Display the selected class name
+              displayField="class" // Use the "class" property for display
+              valueField="class" // Use the "class" property for the value
+              placeholder="Class" // Placeholder text
+            />
+          )}
 
-          <Select.Root defaultValue={className} onValueChange={setClassName}>
-            <Select.Trigger placeholder="Class" />
-            <Select.Content>
-              {isClassNamesSuccess &&
-                classNames.data.map((item, index) => (
-                  <Select.Item key={index} value={item.class}>
-                    {item.class}
-                  </Select.Item>
-                ))}
-            </Select.Content>
-          </Select.Root>
+          {isStudentsSuccess && (
+            <Reusable.SearchableSelect
+              options={students.data} // Pass the array of class objects
+              onSelect={(selectedStudent) => {
+                console.log(selectedStudent, "<<< selectedStudent");
+                setStudent(selectedStudent); // Update the className state
+                setSelectedStudent(selectedStudent); // Update the selectedClassName state
+              }}
+              selectedValue={selectedStudent} // Display the selected class name
+              displayField="full_name" // Use the "class" property for display
+              valueField="full_name" // Use the "class" property for the value
+              placeholder="Student" // Placeholder text
+            />
+          )}
 
-          <Select.Root defaultValue={type} onValueChange={setType}>
-            <Select.Trigger placeholder="Type" />
-            <Select.Content>
-              {isCounselingTypeSuccess &&
-                counselingType.data.map((item, index) => (
-                  <Select.Item key={index} value={item.type}>
-                    {item.type}
-                  </Select.Item>
-                ))}
-            </Select.Content>
-          </Select.Root>
+          {isCounselingTypeSuccess && (
+            <Reusable.SearchableSelect
+              options={counselingType.data} // Pass the array of class objects
+              onSelect={(selectedType) => {
+                console.log(selectedType, "<<< selectedType");
+                setType(selectedType); // Update the className state
+                setSelectedType(selectedType); // Update the selectedClassName state
+              }}
+              selectedValue={selectedType} // Display the selected class name
+              displayField="type" // Use the "class" property for display
+              valueField="type" // Use the "class" property for the value
+              placeholder="Type" // Placeholder text
+            />
+          )}
 
-          <Select.Root defaultValue={counsuler} onValueChange={setCounsuler}>
-            <Select.Trigger placeholder="Counsuler" />
-            <Select.Content>
-              {isCounselingNameSuccess &&
-                counselingName.data.map((item, index) => (
-                  <Select.Item key={index} value={item.name}>
-                    {item.name}
-                  </Select.Item>
-                ))}
-            </Select.Content>
-          </Select.Root>
-
-          <Box width="100%">
-            <TextField.Root
-              radius="large"
-              placeholder="Search..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            >
-              <TextField.Slot>
-                <PiMagnifyingGlassLight size={16} />
-              </TextField.Slot>
-            </TextField.Root>
-          </Box>
+          {isCounselingNameSuccess && (
+            <Reusable.SearchableSelect
+              options={counselingName.data} // Pass the array of class objects
+              onSelect={(selectedCounsuler) => {
+                console.log(selectedCounsuler, "<<< selectedCounsuler");
+                setCounsuler(selectedCounsuler); // Update the className state
+                setSelectedCounsuler(selectedCounsuler); // Update the selectedClassName state
+              }}
+              selectedValue={selectedCounsuler} // Display the selected class name
+              displayField="name" // Use the "class" property for display
+              valueField="name" // Use the "class" property for the value
+              placeholder="Counsuler" // Placeholder text
+            />
+          )}
         </Flex>
         <div className="flex justify-end items-center gap-1">
           {/* Previous Button */}
@@ -273,9 +279,6 @@ function List() {
                   <Table.Cell>{formatDate(item.created_at)}</Table.Cell>
                   <Table.Cell>
                     <PiMagnifyingGlassLight
-                      onClick={() => {
-                        setCounsuleId(item.id);
-                      }}
                       size={16}
                       className="cursor-pointer"
                     />
@@ -285,7 +288,9 @@ function List() {
             })
           ) : (
             <Table.Row>
-              <Spinner />
+              <Table.Cell colSpan={columns.length} align="center">
+                <Spinner />
+              </Table.Cell>
             </Table.Row>
           )}
         </Table.Body>

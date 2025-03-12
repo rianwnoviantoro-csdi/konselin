@@ -155,8 +155,8 @@ export const counselingHandler = () => {
 
     if (student) {
       whereClause
-        ? (whereClause += ` AND LOWER(s.full_name) = '${className.toLowerCase()}'`)
-        : (whereClause = ` WHERE LOWER(s.full_name) = '${className.toLowerCase()}'`);
+        ? (whereClause += ` AND LOWER(s.full_name) = '${student.toLowerCase()}'`)
+        : (whereClause = ` WHERE LOWER(s.full_name) = '${student.toLowerCase()}'`);
     }
 
     const sortColumnMap = {
@@ -185,6 +185,8 @@ export const counselingHandler = () => {
             COUNT(*) as total
         FROM counselings c
             LEFT JOIN accounts a ON a.id = c.counsuler
+            LEFT JOIN student_has_counselings shc ON shc.counseling = c.id
+            LEFT JOIN students s ON shc.student = s.id
         ${whereClause}
     `;
 

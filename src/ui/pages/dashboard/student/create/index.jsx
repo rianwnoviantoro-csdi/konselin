@@ -11,7 +11,6 @@ import {
   TextArea,
   TextField,
 } from "@radix-ui/themes";
-import { PiPlusLight } from "react-icons/pi";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useAddStudentMutation } from "../../../../redux/feature/student/api";
@@ -99,14 +98,6 @@ function Create() {
 
   return (
     <>
-      <div className="p-4 mb-16 flex justify-between">
-        <div className=""></div>
-        <div className="">
-          <Button radius="large" variant="solid">
-            <PiPlusLight size={16} /> Import excell
-          </Button>
-        </div>
-      </div>
       {error && (
         <div
           ref={errorRef}
@@ -117,7 +108,7 @@ function Create() {
           {error}
         </div>
       )}
-      <Container size="2">
+      <Container size="4" className="p-4">
         <form onSubmit={handleSubmit} autoComplete="off">
           <Grid columns="2" gapX="4" gapY="2" width="auto" className="mb-2">
             <Box>
